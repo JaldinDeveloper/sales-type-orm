@@ -1,6 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { SalesDto } from '../Dtos/sale.dto';
 import { DetailEntity } from '../Entities/details.entity';
 import { SaleEntity } from '../Entities/sales.entity';
@@ -8,7 +6,6 @@ import { dataSource } from 'src/dataSource';
 
 @Injectable()
 export class SalesService {
-    private queryRunner;
     constructor(){}
 
     async getAllSales() {
@@ -60,13 +57,13 @@ export class SalesService {
         await queryRunner.startTransaction();
         try {
             
-            const saleCreated = await queryRunner.manager.update(SaleEntity, saleId, {
+            const saleUpdated = await queryRunner.manager.update(SaleEntity, saleId, {
                 clientCI: clientCI,
                 clientName: clientName
             })
             
             await queryRunner.commitTransaction();
-            return saleCreated;
+            return saleUpdated;
         } catch(error) {
             await queryRunner.rollbackTransaction();
             throw new Error('Transaction failed');
@@ -75,5 +72,24 @@ export class SalesService {
             await queryRunner.release();
         }
     }
+
+    async deleteSale(saleId:string) {
+        const queryRunner = dataSource.createQueryRunner();
+        await queryRunner.connect();
+        await queryRunner.startTransaction();
+        try {   
+            const saledeleted = await queryRunner.manager.delete(SaleEntity, saleId);        
+            await queryRunner.commitTransaction();
+            return saledeleted;
+        } catch(error) {
+            await queryRunner.rollbackTransaction();
+            throw new Error('Transaction failed');
+            
+        } finally {
+            await queryRunner.release();
+        }
+    }
+
+
     
 }
