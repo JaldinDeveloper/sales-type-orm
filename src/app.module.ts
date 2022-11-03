@@ -14,7 +14,7 @@ import { SalesModule } from './sales/sales.module';
       password: '',
       database: 'salesdb',
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: true
+      synchronize: false
     }),
     SalesModule],
   controllers: [AppController],

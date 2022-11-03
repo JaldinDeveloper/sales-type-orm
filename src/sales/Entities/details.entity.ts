@@ -11,7 +11,7 @@ export class DetailEntity {
     @Column()
     itemId:string;
     
-    @Column({length: 100, nullable: false})
+    @Column({length: 4, nullable: false})
     description:string;
 
     @Column({type: 'int', nullable: false})

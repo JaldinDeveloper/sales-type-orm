@@ -12,7 +12,10 @@ export class SalesService {
         const queryRunner = dataSource.createQueryRunner();
         await queryRunner.connect();
         await queryRunner.startTransaction();
-        return await queryRunner.manager.find(SaleEntity);
+        //await queryRunner.manager.j
+        return await queryRunner.manager.find(SaleEntity, {
+            relations: ['details']
+        });
     }
 
     async createSale(sale: SalesDto) {
@@ -73,11 +76,35 @@ export class SalesService {
         }
     }
 
+    async updateDetail(clientCI:string, clientName:string, saleId:string) {
+        const queryRunner = dataSource.createQueryRunner();
+        await queryRunner.connect();
+        await queryRunner.startTransaction();
+        try {
+            
+            const saleUpdated = await queryRunner.manager.update(SaleEntity, saleId, {
+                clientCI: clientCI,
+                clientName: clientName
+            })
+            
+            await queryRunner.commitTransaction();
+            return saleUpdated;
+        } catch(error) {
+            await queryRunner.rollbackTransaction();
+            throw new Error('Transaction failed');
+            
+        } finally {
+            await queryRunner.release();
+        }
+    }
+
+
     async deleteSale(saleId:string) {
         const queryRunner = dataSource.createQueryRunner();
         await queryRunner.connect();
         await queryRunner.startTransaction();
         try {   
+            await queryRunner.query("delete from details where sale = "+saleId);
             const saledeleted = await queryRunner.manager.delete(SaleEntity, saleId);        
             await queryRunner.commitTransaction();
             return saledeleted;
